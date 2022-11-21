@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.11'
 services:
     postgres:
         image: postgres:10-alpine
@@ -14,7 +14,7 @@ services:
             - "${PWD}/db-data:/var/lib/postgresql/data"
 
     local-runner:
-        image: amazon/mwaa-local:2_2
+        image: amazon/mwaa-local:${AIRFLOW_VERSION}
         platform: "linux/amd64"
         restart: always
         depends_on:
@@ -30,6 +30,7 @@ services:
             - "${PWD}/dags:/usr/local/airflow/dags"
             - "${PWD}/plugins:/usr/local/airflow/plugins"
             - "${PWD}/requirements:/usr/local/airflow/requirements"
+            - "~/.aws:/home/airflow/.aws"
         ports:
             - "8080:8080"
         command: local-runner

@@ -2,12 +2,12 @@
 
 set -e
 yum update -y
-
+PYTHON_VERSION_SHORT="$(tr -d '.' <<< $PYTHON_VERSION)"
 # install basic python environment
-yum install -y python37 gcc gcc-g++ python3-devel
+yum install -y python${PYTHON_VERSION_SHORT} gcc gcc-g++ python3-devel
 
 # JDBC and PyODBC dependencies
-yum install -y java-1.8.0-openjdk unixODBC-devel 
+yum install -y java-1.8.0-openjdk unixODBC-devel
 
 # Database clients
 yum install -y mariadb-devel postgresql-devel

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-AIRFLOW_VERSION=2_2
-DOCKER_COMPOSE_PROJECT_NAME=aws-mwaa-local-runner-$AIRFLOW_VERSION
+export AIRFLOW_VERSION=2.4.2
+PYTHON_VERSION=3.7
+DOCKER_COMPOSE_PROJECT_NAME=aws-mwaa-local-runner-${AIRFLOW_VERSION//./-}
 
 display_help() {
    # Display Help
@@ -22,36 +23,37 @@ display_help() {
 }
 
 validate_prereqs() {
-   docker -v >/dev/null 2>&1
-   if [ $? -ne 0 ]; then
+
+   if docker -v >/dev/null 2>&1; then
       echo -e "'docker' is not installed or not runnable without sudo. \xE2\x9D\x8C"
    else
-      echo -e "Docker is Installed. \xE2\x9C\x94"
+      echo -e "'docker' is installed. \xE2\x9C\x94"
    fi
 
-   docker-compose -v >/dev/null 2>&1
-   if [ $? -ne 0 ]; then
-      echo -e "'docker-compose' is not installed. \xE2\x9D\x8C"
+
+   if docker compose version >/dev/null 2>&1; then
+      echo -e "'docker compose' is not installed. \xE2\x9D\x8C"
    else
-      echo -e "Docker compose is Installed. \xE2\x9C\x94"
+      echo -e "'docker compose' is installed. \xE2\x9C\x94"
    fi
 
-   python3 --version >/dev/null 2>&1
-   if [ $? -ne 0 ]; then
-      echo -e "Python3 is not installed. \xE2\x9D\x8C"
+
+   if python3 --version >/dev/null 2>&1; then
+      echo -e "'python3' is not installed. \xE2\x9D\x8C"
    else
-      echo -e "Python3 is Installed \xE2\x9C\x94"
+      echo -e "'python3' is installed \xE2\x9C\x94"
    fi
 
-   pip3 --version >/dev/null 2>&1
-   if [ $? -ne 0 ]; then
-      echo -e "Pip3 is not installed. \xE2\x9D\x8C"
+
+   if pip3 --version >/dev/null 2>&1; then
+      echo -e "'pip3' is not installed. \xE2\x9D\x8C"
    else
-      echo -e "Pip3 is Installed. \xE2\x9C\x94"
+      echo -e "'pip3' is installed. \xE2\x9C\x94"
    fi
 }
 
 build_image() {
+   curl https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt -o ./docker/config/constraints.txt
    docker build --rm --compress -t amazon/mwaa-local:$AIRFLOW_VERSION ./docker
 }
 
@@ -78,7 +80,7 @@ package-requirements)
      build_image
    fi
    docker run -v $(pwd)/dags:/usr/local/airflow/dags -v $(pwd)/plugins:/usr/local/airflow/plugins -v $(pwd)/requirements:/usr/local/airflow/requirements -it amazon/mwaa-local:$AIRFLOW_VERSION package-requirements
-   ;;   
+   ;;
 build-image)
    build_image
    ;;
